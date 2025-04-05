@@ -56,6 +56,9 @@ An AI-driven exam platform that enhances academic integrity by detecting cheatin
 
 ---
 
+## 🚀 Live Demo
+[Click here to view the project](https://ai-cheat-detection.vercel.app/)
+
 ## 👨‍💻 Contributors
 
 - **Rishabh Jain** 
