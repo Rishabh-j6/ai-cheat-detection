@@ -240,6 +240,52 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return marks;
     }
+    // Initialize progress from localStorage or set to 100%
+let progress = parseInt(localStorage.getItem('progress')) || 100;
+
+const progressBar = document.getElementById('progressBar');
+setProgressBarStyle(progress); // Set initial color
+progressBar.style.width = progress + '%';
+progressBar.setAttribute('aria-valuenow', progress);
+
+// Function to update progress
+function updateProgress() {
+    document.getElementById('progressText').textContent = progress + '%';
+
+    progress = Math.max(0, progress - 20);
+    localStorage.setItem('progress', progress);
+    progressBar.style.width = progress + '%';
+    progressBar.setAttribute('aria-valuenow', progress);
+    setProgressBarStyle(progress);
+    document.getElementById('progressText').textContent = progress + '%';
+
+
+    if (progress <= 0) {
+        alert('Progress has reached 0%!');
+    }
+}
+
+// Function to set progress bar color based on value
+function setProgressBarStyle(value) {
+    // Remove any previous bg-* classes
+    progressBar.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'bg-info');
+
+    if (value > 60) {
+        progressBar.classList.add('bg-success'); // Green
+    } else if (value > 30) {
+        progressBar.classList.add('bg-warning'); // Yellow
+    } else {
+        progressBar.classList.add('bg-danger'); // Red
+    }
+}
+
+// Detect tab changes
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+        updateProgress();
+    }
+});
+
     
     // Start timer
     function startTimer() {
