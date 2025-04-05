@@ -51,6 +51,11 @@ body {
     align-items: center;
 }
 
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+
 .timer-container {
     text-align: center;
     background-color: var(--secondary-color);
