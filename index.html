@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduQuiz - Online Examination Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="exam-container">
+        <header class="exam-header">
+            <div class="exam-title">
+                <h1>Programming Fundamentals - Midterm Exam</h1>
+            </div>
+            <div class="exam-info">
+                <div class="student-info">
+                    <p>Student: <span id="student-name">John Doe</span></p>
+                    <p>ID: <span id="student-id">STU12345</span></p>
+                </div>
+                <div class="timer-container">
+                    <p>Time Remaining:</p>
+                    <div id="timer" class="timer">01:30:00</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="exam-content">
+            <div class="question-navigation">
+                <h3>Question Navigator</h3>
+                <div class="question-buttons" id="question-buttons">
+                    <!-- Dynamically generated buttons go here -->
+                </div>
+                <div class="progress-info">
+                    <p><span id="answered-count">0</span> of <span id="total-questions">30</span> Answered</p>
+                    <p>Current Score: <span id="current-score">0</span>/<span id="total-score">100</span></p>
+                    <p>Status: <span id="pass-status" class="status-pending">Pending</span></p>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="question-header">
+                    <h2>Question <span id="current-question-number">1</span> <span class="marks">(Marks: <span id="question-marks">5</span>)</span></h2>
+                    <div class="question-actions">
+                        <button id="flag-question" class="btn-flag">Flag for Review</button>
+                        <button id="hint-button" class="btn-hint">Show Hint</button>
+                    </div>
+                </div>
+
+                <div class="question-content" id="current-question">
+                    <p>What is the time complexity of a binary search algorithm?</p>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" id="option1" name="answer" value="A">
+                            <label for="option1">A) O(n)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="option2" name="answer" value="B">
+                            <label for="option2">B) O(log n)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="option3" name="answer" value="C">
+                            <label for="option3">C) O(n²)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" id="option4" name="answer" value="D">
+                            <label for="option4">D) O(n log n)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hint-container" id="hint-container" style="display: none;">
+                    <p><strong>Hint:</strong> <span id="hint-text">Think about how the search space is divided with each comparison.</span></p>
+                </div>
+
+                <div class="question-navigation-buttons">
+                    <button id="prev-question" class="btn-nav">Previous</button>
+                    <button id="save-answer" class="btn-save">Save Answer</button>
+                    <button id="next-question" class="btn-nav">Next</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Anti-cheating warning modal -->
+    <div id="warning-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Warning!</h2>
+            </div>
+            <div class="modal-body">
+                <p>Suspicious activity detected. This will be reported to your proctor.</p>
+                <p>Please remain in the exam window at all times.</p>
+                <p>Further violations may result in exam termination.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="acknowledge-warning" class="btn-primary">I Understand</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="exam.js"></script>
+</body>
+</html>
