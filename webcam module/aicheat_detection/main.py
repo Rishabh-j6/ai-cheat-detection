@@ -1,15 +1,26 @@
+from flask import Flask, render_template, Response, jsonify
 import cv2
+import threading
+import time
 import numpy as np
 import pygetwindow as gw
-import time
 from collections import deque
 from ultralytics import YOLO
 import mss
 import mss.tools
 
+app = Flask(_name_, static_folder='.', template_folder='.')
+
+# Create a global instance of the EProctor class
+proctor = None
+proctoring_active = False
+camera = None
+output_frame = None
+lock = threading.Lock()
+
 
 class EProctor:
-    def __init__(self):
+    def _init_(self):
         # Initializing the model
         try:
             self.face_m = YOLO('yolov8n-face.pt')
@@ -26,7 +37,8 @@ class EProctor:
         self.max_absence_time = 10
         self.gaze_change_threshold = 0.4
         self.screen_check_interval = 2
-        self.allowed_applications = ['Exam Client', 'Calculator', 'Exam Proctoring System']  # Added "Exam Proctoring System"
+        self.allowed_applications = ['Exam Client', 'Calculator', 'Exam Proctoring System', 'Flask',
+                                     'Python']  # Added Flask and Python
         self.forbidden_keywords = ['Google', 'Wikipedia', 'ChatGPT']
 
         # Tracking variables
@@ -178,7 +190,8 @@ class EProctor:
         current_time = time.time()
 
         # If this is a new alert or the existing one needs refreshing
-        if alert_type not in self.active_alerts or current_time - self.active_alerts[alert_type]['start_time'] > self.alert_display_duration:
+        if alert_type not in self.active_alerts or current_time - self.active_alerts[alert_type][
+            'start_time'] > self.alert_display_duration:
             self.active_alerts[alert_type] = {
                 'message': alert_message,
                 'start_time': current_time
@@ -270,50 +283,127 @@ class EProctor:
                 self.clear_alert('unauthorized')
             self.last_screen_check = current_time
 
-    def run_proctoring(self):
-        """Main proctoring loop"""
-        try:
-            cap = cv2.VideoCapture(0)
-            if not cap.isOpened():
-                raise RuntimeError("ERROR: Could not open webcam")
-
-            print("Proctoring system started. Press 'q' to quit.")
-
-            while True:
-                ret, frame = cap.read()
-                if not ret:
-                    print("Error reading frame")
-                    break
-
-                frame = cv2.flip(frame, 1)
-
-                # Process frame and update alerts
-                self.process_webcam_frame(frame)
-
-                # Draw face box if available
-                if self.last_face_box is not None:
-                    try:
-                        x1, y1, x2, y2 = map(int, self.last_face_box)
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    except:
-                        pass
-
-                # Draw all active alerts
-                self.draw_alerts(frame)
-
-                # Show frame
-                cv2.imshow('Exam Proctoring System', frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-
-        except Exception as e:
-            print(f"Fatal error: {str(e)}")
-        finally:
-            cap.release()
-            cv2.destroyAllWindows()
-            print("Proctoring session ended")
+        return frame
 
 
-if __name__ == "__main__":
-    proctor = EProctor()
-    proctor.run_proctoring()
+def generate_frames():
+    """Generate frame-by-frame from the camera for streaming"""
+    global output_frame, camera, lock
+
+    while True:
+        if output_frame is None:
+            time.sleep(0.1)
+            continue
+
+        # Encode the frame in JPEG format
+        with lock:
+            (flag, encoded_frame) = cv2.imencode(".jpg", output_frame)
+            if not flag:
+                continue
+
+        # Yield the output frame in the byte format
+        yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
+               bytearray(encoded_frame) + b'\r\n')
+
+
+def proctor_thread():
+    """Thread that runs the proctoring system"""
+    global output_frame, camera, lock, proctoring_active, proctor
+
+    # Initialize proctor if not already initialized
+    if proctor is None:
+        proctor = EProctor()
+
+    # Initialize camera
+    camera = cv2.VideoCapture(0)
+    if not camera.isOpened():
+        proctoring_active = False
+        print("ERROR: Could not open webcam")
+        return
+
+    while proctoring_active:
+        success, frame = camera.read()
+        if not success:
+            break
+
+        # Flip horizontally for a mirror effect
+        frame = cv2.flip(frame, 1)
+
+        # Process the frame with the EProctor
+        proctor.process_webcam_frame(frame)
+
+        # Draw all active alerts
+        proctor.draw_alerts(frame)
+
+        # Draw face box if available
+        if proctor.last_face_box is not None:
+            try:
+                x1, y1, x2, y2 = map(int, proctor.last_face_box)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            except:
+                pass
+
+        # Update the output frame with lock to avoid race conditions
+        with lock:
+            output_frame = frame.copy()
+
+    # Release resources when thread ends
+    if camera is not None:
+        camera.release()
+
+
+@app.route('/')
+def index():
+    """Serve the start page"""
+    return render_template('start.html')
+
+
+@app.route('/exam')
+def exam():
+    """Serve the exam page"""
+    return render_template('index.html')
+
+
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route"""
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/start_proctoring', methods=['POST'])
+def start_proctoring():
+    """Start the proctoring system"""
+    global proctoring_active, proctor
+
+    if not proctoring_active:
+        proctoring_active = True
+        # Initialize proctor if not already initialized
+        if proctor is None:
+            proctor = EProctor()
+        threading.Thread(target=proctor_thread).start()
+        return jsonify({"status": "success", "message": "Proctoring started"})
+    return jsonify({"status": "warning", "message": "Proctoring already active"})
+
+
+@app.route('/stop_proctoring', methods=['POST'])
+def stop_proctoring():
+    """Stop the proctoring system"""
+    global proctoring_active, camera
+
+    proctoring_active = False
+    time.sleep(1)  # Give time for the thread to finish
+    return jsonify({"status": "success", "message": "Proctoring stopped"})
+
+
+@app.route('/get_alerts')
+def get_alerts():
+    """Return current alerts from the proctoring system"""
+    global proctor
+    if proctor is None:
+        return jsonify({"alerts": []})
+    return jsonify({"alerts": list(proctor.active_alerts.values())})
+
+
+if _name_ == '_main_':
+    app.run(debug=True, threaded=True)

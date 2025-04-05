@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduQuiz - Start Exam</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
+    <style>
+        /* [Previous style content remains unchanged] */
+    </style>
+</head>
+<body>
+    <div class="start-container">
+        <div class="header">
+            <h1>Programming Fundamentals - Midterm Exam</h1>
+            <p>Please complete the pre-exam checklist before starting</p>
+        </div>
+
+        <div class="content">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="camera-container">
+                        <video id="camera-feed" autoplay muted></video>
+                        <div class="camera-overlay">
+                            <span id="camera-status">Camera ready</span>
+                        </div>
+                        <div class="camera-controls">
+                            <button class="camera-btn" id="mute-btn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="camera-btn" id="video-btn">
+                                <i class="fas fa-video"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="exam-info">
+                        <h2>Exam Details</h2>
+                        <div class="info-item">
+                            <span>Student:</span>
+                            <span>John Doe (STU12345)</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Duration:</span>
+                            <span>90 minutes</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Total Questions:</span>
+                            <span>30</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Total Marks:</span>
+                            <span>100</span>
+                        </div>
+                        <div class="info-item">
+                            <span>Passing Score:</span>
+                            <span>60%</span>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button id="record-btn" class="main-btn btn-record">Record Voice Sample</button>
+                        <div id="recording-indicator" class="recording-indicator">Recording...</div>
+                        <button id="start-btn" class="main-btn btn-start" disabled>Start Exam</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="requirements">
+                <h3>System Requirements & Rules</h3>
+                <ul class="requirement-list">
+                    <li>Your camera and microphone must be enabled throughout the exam</li>
+                    <li>Leaving the exam tab will result in penalties</li>
+                    <li>Record a voice sample for identity verification</li>
+                    <li>Your face must be clearly visible in the camera</li>
+                    <li>No additional applications or browser tabs should be open</li>
+                    <li>Ensure you have a stable internet connection</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cameraFeed = document.getElementById('camera-feed');
+            const recordBtn = document.getElementById('record-btn');
+            const startBtn = document.getElementById('start-btn');
+            const recordingIndicator = document.getElementById('recording-indicator');
+            const cameraStatus = document.getElementById('camera-status');
+            
+            // Initialize camera
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                    .then(function(stream) {
+                        cameraFeed.srcObject = stream;
+                        cameraStatus.textContent = 'Camera active';
+                    })
+                    .catch(function(error) {
+                        cameraStatus.textContent = 'Camera error';
+                        alert('Unable to access camera. Please enable camera access to continue.');
+                        console.error('Error accessing media devices:', error);
+                    });
+            }
+            
+            // Handle voice recording
+            let isRecording = false;
+            let mediaRecorder;
+            let audioChunks = [];
+            
+            recordBtn.addEventListener('click', function() {
+                if (!isRecording) {
+                    // Start recording
+                    isRecording = true;
+                    recordBtn.textContent = 'Stop Recording';
+                    recordingIndicator.style.display = 'inline-block';
+                    
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(stream => {
+                            mediaRecorder = new MediaRecorder(stream);
+                            mediaRecorder.start();
+                            
+                            mediaRecorder.ondataavailable = e => {
+                                audioChunks.push(e.data);
+                            };
+                            
+                            mediaRecorder.onstop = () => {
+                                const audioBlob = new Blob(audioChunks);
+                                audioChunks = [];
+                                // Here you would typically send the blob to your server
+                                console.log('Audio recorded:', audioBlob);
+                            };
+                        });
+                    
+                    // Enable start button after 5 seconds
+                    setTimeout(function() {
+                        if (isRecording) {
+                            mediaRecorder.stop();
+                            isRecording = false;
+                            recordBtn.textContent = 'Voice Sample Recorded';
+                            recordingIndicator.style.display = 'none';
+                            recordBtn.disabled = true;
+                            startBtn.disabled = false;
+                        }
+                    }, 5000);
+                } else {
+                    // Stop recording
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    recordBtn.textContent = 'Record Voice Sample';
+                    recordingIndicator.style.display = 'none';
+                }
+            });
+            
+            // Handle start exam button (Updated version)
+            startBtn.addEventListener('click', function() {
+                try {
+                    // Reset progress in localStorage before starting the exam
+                    localStorage.setItem('progress', '100');
+                    
+                    console.log('Attempting to redirect to index.html');
+                    
+                    // Check if we're already on index.html to prevent infinite redirect
+                    if (window.location.pathname !== '/index.html') {
+                        // Try primary redirect method
+                        window.location.href = 'index.html';
+                        
+                        // Fallback redirect after a short delay
+                        setTimeout(function() {
+                            if (window.location.pathname !== '/index.html') {
+                                window.location.replace('index.html');
+                            }
+                        }, 500);
+                    }
+                } catch (error) {
+                    console.error('Error redirecting to index.html:', error);
+                    alert('Error starting exam. Please try again.');
+                }
+            });
+            
+            // Camera control buttons
+            document.getElementById('mute-btn').addEventListener('click', function() {
+                alert('Microphone muted/unmuted');
+            });
+            
+            document.getElementById('video-btn').addEventListener('click', function() {
+                alert('Camera turned off/on');
+            });
+        });
+    </script>
+</body>
+</html>
