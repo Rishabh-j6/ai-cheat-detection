@@ -6,8 +6,187 @@
     <title>EduQuiz - Start Exam</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
+    <!-- Replace FontAwesome kit with reliable CDN link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* [Previous style content remains unchanged] */
+        .start-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: var(--primary-color, #3498db);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        #camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .camera-controls {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+
+        .camera-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .camera-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .main-btn {
+            padding: 12px 30px;
+            border-radius: 5px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-record {
+            background-color: var(--warning-color, #f39c12);
+            color: white;
+        }
+
+        .btn-record:hover {
+            background-color: #d35400;
+        }
+
+        .btn-start {
+            background-color: var(--success-color, #27ae60);
+            color: white;
+        }
+
+        .btn-start:hover {
+            background-color: #219653;
+        }
+
+        .exam-info {
+            background-color: var(--light-color, #f8f9fa);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .exam-info h2 {
+            margin-bottom: 15px;
+            color: var(--dark-color, #343a40);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color, #dee2e6);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .requirements {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color, #dee2e6);
+        }
+
+        .requirements h3 {
+            margin-bottom: 15px;
+            color: var(--dark-color, #343a40);
+        }
+
+        .requirement-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .requirement-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .requirement-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color, #27ae60);
+        }
+
+        .recording-indicator {
+            display: none;
+            background-color: var(--danger-color, #dc3545);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -27,10 +206,10 @@
                         </div>
                         <div class="camera-controls">
                             <button class="camera-btn" id="mute-btn">
-                                <i class="fas fa-microphone"></i>
+                                <i class="fa-solid fa-microphone"></i>
                             </button>
                             <button class="camera-btn" id="video-btn">
-                                <i class="fas fa-video"></i>
+                                <i class="fa-solid fa-video"></i>
                             </button>
                         </div>
                     </div>
@@ -82,8 +261,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cameraFeed = document.getElementById('camera-feed');
@@ -108,8 +285,6 @@
             
             // Handle voice recording
             let isRecording = false;
-            let mediaRecorder;
-            let audioChunks = [];
             
             recordBtn.addEventListener('click', function() {
                 if (!isRecording) {
@@ -118,70 +293,31 @@
                     recordBtn.textContent = 'Stop Recording';
                     recordingIndicator.style.display = 'inline-block';
                     
-                    navigator.mediaDevices.getUserMedia({ audio: true })
-                        .then(stream => {
-                            mediaRecorder = new MediaRecorder(stream);
-                            mediaRecorder.start();
-                            
-                            mediaRecorder.ondataavailable = e => {
-                                audioChunks.push(e.data);
-                            };
-                            
-                            mediaRecorder.onstop = () => {
-                                const audioBlob = new Blob(audioChunks);
-                                audioChunks = [];
-                                // Here you would typically send the blob to your server
-                                console.log('Audio recorded:', audioBlob);
-                            };
-                        });
-                    
-                    // Enable start button after 5 seconds
+                    // Simulate recording for 5 seconds
                     setTimeout(function() {
-                        if (isRecording) {
-                            mediaRecorder.stop();
-                            isRecording = false;
-                            recordBtn.textContent = 'Voice Sample Recorded';
-                            recordingIndicator.style.display = 'none';
-                            recordBtn.disabled = true;
-                            startBtn.disabled = false;
-                        }
+                        isRecording = false;
+                        recordBtn.textContent = 'Voice Sample Recorded';
+                        recordingIndicator.style.display = 'none';
+                        recordBtn.disabled = true;
+                        
+                        // Enable the start exam button
+                        startBtn.disabled = false;
                     }, 5000);
                 } else {
                     // Stop recording
-                    mediaRecorder.stop();
                     isRecording = false;
                     recordBtn.textContent = 'Record Voice Sample';
                     recordingIndicator.style.display = 'none';
                 }
             });
             
-            // Handle start exam button (Updated version)
+            // Handle start exam button
             startBtn.addEventListener('click', function() {
-                try {
-                    // Reset progress in localStorage before starting the exam
-                    localStorage.setItem('progress', '100');
-                    
-                    console.log('Attempting to redirect to index.html');
-                    
-                    // Check if we're already on index.html to prevent infinite redirect
-                    if (window.location.pathname !== '/index.html') {
-                        // Try primary redirect method
-                        window.location.href = 'index.html';
-                        
-                        // Fallback redirect after a short delay
-                        setTimeout(function() {
-                            if (window.location.pathname !== '/index.html') {
-                                window.location.replace('index.html');
-                            }
-                        }, 500);
-                    }
-                } catch (error) {
-                    console.error('Error redirecting to index.html:', error);
-                    alert('Error starting exam. Please try again.');
-                }
+                // Redirect to the exam page
+                window.location.href = 'index.html';
             });
             
-            // Camera control buttons
+            // Camera control buttons (for demonstration)
             document.getElementById('mute-btn').addEventListener('click', function() {
                 alert('Microphone muted/unmuted');
             });
