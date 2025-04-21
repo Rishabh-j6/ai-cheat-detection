@@ -62,9 +62,9 @@ An AI-driven exam platform that enhances academic integrity by detecting cheatin
 ## 👨‍💻 Contributors
 
 - **Rishabh Jain** 
-- **Rishi Srivastava**
-- **Kunal Mishra**
-- **Shreya Singh**
+- **Ark mani**
+- **Prateek yadav**
+- **Parth somani**
 
 ---
 
