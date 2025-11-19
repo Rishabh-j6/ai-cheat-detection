@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Quiz Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .top-nav {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .top-nav h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navigation-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .nav-tab:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        .nav-tab.active {
+            background-color: white;
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-icon.orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-icon.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-header h2 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .quiz-card {
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .quiz-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .quiz-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .quiz-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .quiz-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quiz-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .quiz-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .quiz-status.draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .quiz-status.completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .quiz-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ee5a52;
+        }
+
+        .btn-view {
+            background: #51cf66;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #40c057;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge.high {
+            background: #ffe0e0;
+            color: #c92a2a;
+        }
+
+        .badge.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge.low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quiz-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <h1>👨‍💼 Admin Portal</h1>
+        <div class="navigation-tabs">
+            <a href="index.html" class="nav-tab">Student View</a>
+            <a href="proctor-dashboard.html" class="nav-tab">Proctor Dashboard</a>
+            <a href="admin-portal.html" class="nav-tab active">Admin Portal</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon purple">📚</div>
+                <div class="stat-value" id="totalQuizzes">12</div>
+                <div class="stat-label">Total Quizzes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">👥</div>
+                <div class="stat-value" id="totalStudents">248</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">⚠️</div>
+                <div class="stat-value" id="flaggedCases">23</div>
+                <div class="stat-label">Flagged Cases</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue">📊</div>
+                <div class="stat-value" id="avgScore">78%</div>
+                <div class="stat-label">Average Score</div>
+            </div>
+        </div>
+
+        <!-- Quiz Management Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2>📝 Quiz Management</h2>
+                <button class="btn-primary" onclick="openCreateQuizModal()">
+                    ➕ Create New Quiz
+                </button>
+            </div>
+
+            <div class="quiz-grid" id="quizzesGrid">
+                <!-- Quizzes will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2>🔔 Recent Activity</h2>
+                <button class="btn-secondary">View All</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Quiz</th>
+                        <th>Activity</th>
+                        <th>Severity</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="activityTable">
+                    <!-- Activity will be rendered here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create Quiz Modal -->
+    <div class="modal" id="createQuizModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Quiz</h2>
+                <button class="close-btn" onclick="closeCreateQuizModal()">×</button>
+            </div>
+
+            <form id="createQuizForm" onsubmit="handleCreateQuiz(event)">
+                <div class="form-group">
+                    <label>Quiz Title</label>
+                    <input type="text" placeholder="e.g., Advanced Mathematics Midterm" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea placeholder="Enter quiz description..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select required>
+                        <option value="">Select Subject</option>
+                        <option value="math">Mathematics</option>
+                        <option value="science">Science</option>
+                        <option value="english">English</option>
+                        <option value="history">History</option>
+                        <option value="cs">Computer Science</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" placeholder="60" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Total Questions</label>
+                    <input type="number" placeholder="10" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Proctoring Level</label>
+                    <select required>
+                        <option value="basic">Basic (Tab switching only)</option>
+                        <option value="standard">Standard (Camera + Tab monitoring)</option>
+                        <option value="strict">Strict (Full AI monitoring)</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeCreateQuizModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sample quiz data
+        const quizzes = [
+            { id: 1, title: "Advanced Mathematics Midterm", subject: "Mathematics", questions: 25, duration: 90, status: "active", students: 45 },
+            { id: 2, title: "Introduction to Physics", subject: "Physics", questions: 20, duration: 60, status: "active", students: 38 },
+            { id: 3, title: "World History Final", subject: "History", questions: 30, duration: 120, status: "completed", students: 52 },
+            { id: 4, title: "Data Structures Quiz", subject: "Computer Science", questions: 15, duration: 45, status: "draft", students: 0 },
+            { id: 5, title: "English Literature", subject: "English", questions: 20, duration: 75, status: "active", students: 34 },
+            { id: 6, title: "Chemistry Basics", subject: "Chemistry", questions: 18, duration: 60, status: "draft", students: 0 }
+        ];
+
+        // Sample activity data
+        const activities = [
+            { student: "Alex Johnson", quiz: "Advanced Mathematics", activity: "Tab Switching", severity: "medium", time: "2 mins ago" },
+            { student: "Sarah Williams", quiz: "Introduction to Physics", activity: "Multiple Faces Detected", severity: "high", time: "5 mins ago" },
+            { student: "Michael Chen", quiz: "Advanced Mathematics", activity: "Gaze Off-Screen", severity: "low", time: "8 mins ago" },
+            { student: "Emma Davis", quiz: "World History", activity: "Unknown Voice", severity: "high", time: "12 mins ago" },
+            { student: "James Wilson", quiz: "Data Structures", activity: "Phone Detected", severity: "high", time: "15 mins ago" }
+        ];
+
+        // Render quizzes
+        function renderQuizzes() {
+            const grid = document.getElementById('quizzesGrid');
+            grid.innerHTML = '';
+
+            if (quizzes.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <h3>No Quizzes Yet</h3>
+                        <p>Create your first quiz to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            quizzes.forEach(quiz => {
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.innerHTML = `
+                    <h3>${quiz.title}</h3>
+                    <div class="quiz-meta">
+                        <span>📚 ${quiz.subject}</span>
+                        <span>❓ ${quiz.questions} questions</span>
+                        <span>⏱️ ${quiz.duration} mins</span>
+                    </div>
+                    <span class="quiz-status ${quiz.status}">${quiz.status}</span>
+                    ${quiz.students > 0 ? `<p style="margin-top: 10px; color: #666; font-size: 13px;">👥 ${quiz.students} students enrolled</p>` : ''}
+                    <div class="quiz-actions">
+                        <button class="btn-edit" onclick="editQuiz(${quiz.id})">✏️ Edit</button>
+                        <button class="btn-view" onclick="viewQuiz(${quiz.id})">👁️ View</button>
+                        <button class="btn-delete" onclick="deleteQuiz(${quiz.id})">🗑️ Delete</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Render activity table
+        function renderActivity() {
+            const table = document.getElementById('activityTable');
+            table.innerHTML = '';
+
+            activities.forEach(activity => {
+                const row = document.createElement('tr');
+                const severityClass = activity.severity === 'high' ? 'high' : activity.severity === 'medium' ? 'medium' : 'low';
+                row.innerHTML = `
+                    <td><strong>${activity.student}</strong></td>
+                    <td>${activity.quiz}</td>
+                    <td>${activity.activity}</td>
+                    <td><span class="badge ${severityClass}">${activity.severity.toUpperCase()}</span></td>
+                    <td>${activity.time}</td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        // Modal functions
+        function openCreateQuizModal() {
+            document.getElementById('createQuizModal').classList.add('active');
+        }
+
+        function closeCreateQuizModal() {
+            document.getElementById('createQuizModal').classList.remove('active');
+            document.getElementById('createQuizForm').reset();
+        }
+
+        function handleCreateQuiz(event) {
+            event.preventDefault();
+            alert('Quiz created successfully!\n(In full implementation, this would save to database)');
+            closeCreateQuizModal();
+        }
+
+        // Quiz actions
+        function editQuiz(id) {
+            alert(`Editing quiz ID: ${id}\n(This would open the quiz editor in full implementation)`);
+        }
+
+        function viewQuiz(id) {
+            const quiz = quizzes.find(q => q.id === id);
+            alert(`Viewing: ${quiz.title}\n\nDetails:\n- ${quiz.questions} questions\n- ${quiz.duration} minutes\n- Status: ${quiz.status}\n- ${quiz.students} students enrolled`);
+        }
+
+        function deleteQuiz(id) {
+            if (confirm('Are you sure you want to delete this quiz?')) {
+                const index = quizzes.findIndex(q => q.id === id);
+                quizzes.splice(index, 1);
+                renderQuizzes();
+                alert('Quiz deleted successfully!');
+            }
+        }
+
+        // Initialize
+        renderQuizzes();
+        renderActivity();
+    </script>
+</body>
+</html>
