@@ -34,6 +34,32 @@
             font-size: 28px;
         }
 
+        .navigation-tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .nav-tab.active {
+            background-color: #667eea;
+            color: white;
+        }
+
         .dashboard-stats {
             display: flex;
             gap: 30px;
@@ -277,6 +303,10 @@
         <div>
             <h1>🎓 Proctor Dashboard</h1>
             <p style="color: #666; margin-top: 5px;">Advanced Mathematics Quiz - Active Now</p>
+            <div class="navigation-tabs">
+                <a href="index.html" class="nav-tab">Student View</a>
+                <a href="proctor-dashboard.html" class="nav-tab active">Proctor Dashboard</a>
+            </div>
         </div>
         <div class="dashboard-stats">
             <div class="stat-item">
@@ -301,7 +331,6 @@
     <div class="students-grid" id="studentsGrid"></div>
 
     <script>
-        // Sample student data
         const students = [
             { id: 1, name: "Alex Johnson", email: "alex.j@university.edu", avatar: "AJ" },
             { id: 2, name: "Sarah Williams", email: "s.williams@university.edu", avatar: "SW" },
@@ -311,7 +340,6 @@
             { id: 6, name: "Olivia Brown", email: "olivia.b@university.edu", avatar: "OB" }
         ];
 
-        // Detection events
         const detectionEvents = [
             { type: 'Tab Switching', severity: 'medium', impact: 8 },
             { type: 'Gaze Off-Screen', severity: 'low', impact: 5 },
@@ -321,7 +349,6 @@
             { type: 'Multiple Faces', severity: 'high', impact: 20 }
         ];
 
-        // Initialize student states
         const studentStates = students.map(student => ({
             ...student,
             integrity: 100,
@@ -329,7 +356,6 @@
             status: 'active'
         }));
 
-        // Render students
         function renderStudents() {
             const grid = document.getElementById('studentsGrid');
             grid.innerHTML = '';
@@ -445,10 +471,8 @@
             alert(`Student ${student.name} has been flagged for review.\n(Admin would be notified in full implementation)`);
         }
 
-        // Initial render
         renderStudents();
 
-        // Auto-simulate events every 5 seconds for demo
         setInterval(() => {
             if (Math.random() > 0.5) {
                 simulateRandomEvent();
