@@ -88,6 +88,56 @@
             </div>
         </main>
     </div>
+    <!-- Authentication UI (simple) -->
+<div id="auth-panel">
+  <div>
+    <input id="auth-email" type="email" placeholder="Email">
+    <input id="auth-password" type="password" placeholder="Password">
+  </div>
+  <div>
+    <button id="signup-btn">Sign Up</button>
+    <button id="signin-btn">Sign In</button>
+    <button id="signout-btn">Sign Out</button>
+    <button id="reset-btn">Reset Password</button>
+  </div>
+  <div>Status: <span id="auth-status">Signed out</span> — <span id="user-email">Not signed in</span></div>
+</div>
+
+<!-- Progress & timer & question UI placeholders (from your original code) -->
+<div id="timer">00:00:00</div>
+<div id="question-buttons"></div>
+<div id="current-question-number"></div>
+<div id="question-marks"></div>
+<div id="current-question"></div>
+
+<!-- Hint -->
+<div id="hint-container" style="display:none">
+  <div id="hint-text"></div>
+</div>
+
+<!-- Warning modal -->
+<div id="warning-modal" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);">
+  <div style="background:white; padding:20px;">
+    <p>Suspicious activity detected. Stay on the exam window.</p>
+    <button id="acknowledge-warning">I understand</button>
+  </div>
+</div>
+
+<!-- Progress bar -->
+<div id="progressBar" role="progressbar" style="width:100%; height:18px;"></div>
+<div id="progressText">100%</div>
+
+<!-- Buttons you referenced -->
+<button id="prev-question">Previous</button>
+<button id="next-question">Next</button>
+<button id="save-answer">Save Answer</button>
+<button id="flag-question">Flag for Review</button>
+
+<!-- Score display -->
+<div>Answered: <span id="answered-count">0</span> / <span id="total-questions">30</span></div>
+<div>Score: <span id="current-score">0</span> / <span id="total-score">100</span></div>
+<div id="pass-status">Pending</div>
+
 
     <!-- Anti-cheating warning modal -->
     <div id="warning-modal" class="modal">
